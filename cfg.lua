@@ -210,7 +210,9 @@ require("lualine").setup{
 require("toggleterm").setup{}
 require("bufferline").setup{}
 require("gitsigns").setup{}
-
+require('goto-preview').setup {
+  default_mappings = true,
+}
 vim.g.tokyonight_colors = { comment = "#777fa0" }
 vim.cmd[[colorscheme tokyonight]]
 

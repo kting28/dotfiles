@@ -7,29 +7,36 @@ Plug 'nvim-telescope/telescope.nvim'
 Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
 " LSP
 Plug 'neovim/nvim-lspconfig'
+" LSP - completion
 Plug 'hrsh7th/cmp-nvim-lsp' 
 Plug 'hrsh7th/cmp-buffer'
 Plug 'hrsh7th/cmp-path'
 Plug 'hrsh7th/cmp-cmdline'
 Plug 'hrsh7th/nvim-cmp' 
+" LSP - snippets
 Plug 'saadparwaiz1/cmp_luasnip' 
 Plug 'L3MON4D3/LuaSnip' 
+" LSP - misc
 Plug 'folke/trouble.nvim'
 Plug 'seblj/nvim-echo-diagnostics'
+Plug 'gfanto/fzf-lsp.nvim'
+Plug 'rmagatti/goto-preview'
+" Treesitter
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}  
 " Style & UI
 Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
 Plug 'folke/lsp-colors.nvim'
 Plug 'kyazdani42/nvim-web-devicons'
 Plug 'nvim-lualine/lualine.nvim'
+" Utils
 Plug 'folke/which-key.nvim'
 Plug 'akinsho/bufferline.nvim'
+Plug 'tpope/vim-vinegar'
+Plug 'akinsho/toggleterm.nvim'
 " Dev 
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
 Plug 'lewis6991/gitsigns.nvim'
-Plug 'tpope/vim-vinegar'
-Plug 'akinsho/toggleterm.nvim'
 Plug 'Vimjas/vim-python-pep8-indent'
 Plug 'chrisbra/csv.vim'
 " Misc
@@ -59,10 +66,15 @@ nnoremap <leader>fb <cmd>Telescope buffers<cr>
 nnoremap <leader>fh <cmd>Telescope help_tags<cr>
 nnoremap <leader>fr <cmd>Telescope oldfiles<cr>
 
+map <silent> <leader><cr> :noh<cr>
+
 augroup FugitiveBehavior
   autocmd!
   autocmd User FugitiveStageBlob setlocal readonly nomodifiable noswapfile
 augroup END
+
+" Return to last edit position when opening files
+au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 
 lua require('cfg')
 
