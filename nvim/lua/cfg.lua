@@ -134,21 +134,6 @@ cmp.setup({
   })
 })
 
--- Use buffer source for `/` (if you enabled `native_menu`, this won't work anymore).
-cmp.setup.cmdline('/', {
-  sources = {
-    { name = 'buffer' }
-  }
-})
-
--- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
-cmp.setup.cmdline(':', {
-  sources = cmp.config.sources({
-    { name = 'path' }
-  }, {
-    { name = 'cmdline' }
-  })
-})
 vim.lsp.handlers["textDocument/hover"] =
   vim.lsp.with(
     vim.lsp.handlers.hover,
@@ -213,6 +198,6 @@ require("gitsigns").setup{}
 require('goto-preview').setup {
   default_mappings = true,
 }
-vim.g.tokyonight_colors = { comment = "#777fa0" }
+vim.g.tokyonight_colors = { comment = "#ababab", fg="#fafaf4"}
 vim.cmd[[colorscheme tokyonight]]
 
