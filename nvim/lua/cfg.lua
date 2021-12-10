@@ -1,9 +1,10 @@
 
--- nvim-telescope/telescope-fzf-native.nvim --
+-- nvim-telescope/telescope-fzf-native.nvim
 require('telescope').setup {}
 require('telescope').load_extension('fzf')
 
--- neovim/nvim-lspconfig --
+-- neovim/nvim-lspconfig
+-- nvim-lua/kickstart.nvim
 local nvim_lsp = require('lspconfig')
 
 local on_attach = function(client, bufnr)
@@ -53,6 +54,7 @@ local on_attach = function(client, bufnr)
   end
 end
 
+-- hrsh7th/nvim-cmp
 -- Add additional capabilities supported by nvim-cmp
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
@@ -165,7 +167,7 @@ for type, icon in pairs(signs) do
   vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
 end
 
--- teesitter --
+-- nvim-teesitter
 require'nvim-treesitter.configs'.setup {
   ensure_installed = "maintained", -- one of "all", "maintained" (parsers with maintainers), or a list of languages
   sync_install = false, -- install languages synchronously (only applied to `ensure_installed`)
