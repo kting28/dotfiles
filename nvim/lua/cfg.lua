@@ -198,6 +198,6 @@ require("gitsigns").setup{}
 require('goto-preview').setup {
   default_mappings = true,
 }
-vim.g.tokyonight_colors = { comment = "#ababab", fg="#fafaf4"}
+vim.g.tokyonight_colors = { comment = "#8c8c8c", fg="#fafaf4"}
 vim.cmd[[colorscheme tokyonight]]
 
