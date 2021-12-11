@@ -39,6 +39,7 @@ Plug 'tpope/vim-fugitive'
 Plug 'lewis6991/gitsigns.nvim'
 Plug 'Vimjas/vim-python-pep8-indent'
 Plug 'chrisbra/csv.vim'
+Plug 'ahmedkhalf/project.nvim'
 " Misc
 Plug 'antoinemadec/FixCursorHold.nvim'
 call plug#end()
@@ -59,12 +60,14 @@ set showmatch matchtime=2 timeoutlen=500
 set expandtab shiftwidth=2 tabstop=2 smartindent
 set number cursorline
 
+let g:netrw_liststyle=3
 " Find files using Telescope command-line sugar.
 nnoremap <leader>ff <cmd>Telescope find_files<cr>
 nnoremap <leader>fg <cmd>Telescope live_grep<cr>
 nnoremap <leader>fb <cmd>Telescope buffers<cr>
 nnoremap <leader>fh <cmd>Telescope help_tags<cr>
 nnoremap <leader>fr <cmd>Telescope oldfiles<cr>
+nnoremap <leader>fp <cmd>Telescope projects<cr>
 
 map <silent> <leader><cr> :noh<cr>
 

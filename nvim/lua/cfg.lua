@@ -2,6 +2,7 @@
 -- nvim-telescope/telescope-fzf-native.nvim
 require('telescope').setup {}
 require('telescope').load_extension('fzf')
+require('telescope').load_extension('projects')
 
 -- neovim/nvim-lspconfig
 -- nvim-lua/kickstart.nvim
@@ -199,6 +200,9 @@ require("bufferline").setup{}
 require("gitsigns").setup{}
 require('goto-preview').setup {
   default_mappings = true,
+}
+require("project_nvim").setup {
+  patterns = { ".git", ".p4config", ".p4env", "Makefile", "package.json" }
 }
 vim.g.tokyonight_colors = { comment = "#8c8c8c", fg="#fafaf4"}
 vim.cmd[[colorscheme tokyonight]]
