@@ -5,6 +5,12 @@ require('telescope').load_extension('fzf')
 require('telescope').load_extension('projects')
 
 -- neovim/nvim-lspconfig
+local lsp_status = require('lsp-status')
+-- Put this somewhere near lsp_status.register_progress()
+lsp_status.register_progress()
+lsp_status.config({
+  current_function=true
+  })
 -- nvim-lua/kickstart.nvim
 local nvim_lsp = require('lspconfig')
 
@@ -53,12 +59,14 @@ local on_attach = function(client, bufnr)
       augroup END
     ]], false)
   end
+  lsp_status.on_attach(client)
 end
 
 -- hrsh7th/nvim-cmp
 -- Add additional capabilities supported by nvim-cmp
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
+capabilities = vim.tbl_extend('keep', capabilities or {}, lsp_status.capabilities)
 
 -- Enable some language servers with the additional completion capabilities offered by nvim-cmp
 local servers = { 'clangd', 'rust_analyzer', 'pyright'}
@@ -170,7 +178,7 @@ end
 
 -- nvim-teesitter
 require'nvim-treesitter.configs'.setup {
-  ensure_installed = "maintained", -- one of "all", "maintained" (parsers with maintainers), or a list of languages
+  ensure_installed = "all", -- one of "all", "maintained" (parsers with maintainers), or a list of languages
   sync_install = false, -- install languages synchronously (only applied to `ensure_installed`)
   ignore_install = { "javascript" }, -- List of parsers to ignore installing
   highlight = {
@@ -193,6 +201,14 @@ require("which-key").setup{
 require("lualine").setup{
     options = { 
         theme = 'tokyonight'
+    },
+    sections = {
+      lualine_b = {'branch', 'diff', 'diagnostics', 'filename'},
+      lualine_c = {
+        {
+          "vim.b.lsp_current_function"
+        }
+      }
     }
 }
 require("toggleterm").setup{}
@@ -202,6 +218,7 @@ require('goto-preview').setup {
   default_mappings = true,
 }
 require("project_nvim").setup {
+  manual_mode = true,
   patterns = { ".git", ".p4config", ".p4env", "Makefile", "package.json" }
 }
 vim.g.tokyonight_colors = { comment = "#8c8c8c", fg="#fafaf4"}

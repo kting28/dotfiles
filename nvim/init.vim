@@ -37,9 +37,9 @@ Plug 'akinsho/toggleterm.nvim'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
 Plug 'lewis6991/gitsigns.nvim'
-Plug 'Vimjas/vim-python-pep8-indent'
 Plug 'chrisbra/csv.vim'
 Plug 'ahmedkhalf/project.nvim'
+Plug 'nvim-lua/lsp-status.nvim'
 " Misc
 Plug 'antoinemadec/FixCursorHold.nvim'
 call plug#end()
