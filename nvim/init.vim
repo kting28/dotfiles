@@ -40,6 +40,7 @@ Plug 'lewis6991/gitsigns.nvim'
 Plug 'chrisbra/csv.vim'
 Plug 'ahmedkhalf/project.nvim'
 Plug 'nvim-lua/lsp-status.nvim'
+Plug 'nvim-tree/nvim-tree.lua'
 " Misc
 Plug 'antoinemadec/FixCursorHold.nvim'
 call plug#end()
