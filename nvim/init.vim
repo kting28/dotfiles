@@ -34,7 +34,7 @@ Plug 'akinsho/bufferline.nvim'
 Plug 'tpope/vim-vinegar'
 Plug 'akinsho/toggleterm.nvim'
 " Dev 
-Plug 'tpope/vim-commentary'
+Plug 'preservim/nerdcommenter'
 Plug 'tpope/vim-fugitive'
 Plug 'lewis6991/gitsigns.nvim'
 Plug 'chrisbra/csv.vim'
