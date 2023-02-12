@@ -1,3 +1,6 @@
+-- disable netrw at the very start of your init.lua (strongly advised)
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
 
 -- nvim-telescope/telescope-fzf-native.nvim
 require('telescope').setup {}
@@ -5,12 +8,9 @@ require('telescope').load_extension('fzf')
 require('telescope').load_extension('projects')
 
 -- neovim/nvim-lspconfig
-local lsp_status = require('lsp-status')
--- Put this somewhere near lsp_status.register_progress()
-lsp_status.register_progress()
-lsp_status.config({
-  current_function=true
-  })
+
+
+local navic = require("nvim-navic")
 -- nvim-lua/kickstart.nvim
 local nvim_lsp = require('lspconfig')
 
@@ -59,14 +59,15 @@ local on_attach = function(client, bufnr)
       augroup END
     ]], false)
   end
-  lsp_status.on_attach(client)
+  if client.server_capabilities.documentSymbolProvider then
+    navic.attach(client, bufnr)
+  end
 end
 
 -- hrsh7th/nvim-cmp
 -- Add additional capabilities supported by nvim-cmp
 --local capabilities = vim.lsp.protocol.make_client_capabilities()
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
-capabilities = vim.tbl_extend('keep', capabilities or {}, lsp_status.capabilities)
 
 -- Enable some language servers with the additional completion capabilities offered by nvim-cmp
 local servers = { 'clangd', 'rust_analyzer', 'pyright'}
@@ -88,10 +89,12 @@ local luasnip = require 'luasnip'
 local cmp = require'cmp'
 
 local has_words_before = function()
+  unpack = unpack or table.unpack
   local line, col = unpack(vim.api.nvim_win_get_cursor(0))
   return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
 end
 
+-- https://github.com/hrsh7th/nvim-cmp/wiki/Example-mappings#luasnip
 cmp.setup({
   snippet = {
     -- REQUIRED - you must specify a snippet engine
@@ -102,19 +105,23 @@ cmp.setup({
       -- require'snippy'.expand_snippet(args.body) -- For `snippy` users.
     end,
   },
+  window = {
+    completion = cmp.config.window.bordered(),
+    documentation = cmp.config.window.bordered(),
+  },
   mapping = {
-    ['<C-b>'] = cmp.mapping(cmp.mapping.scroll_docs(-4), { 'i', 'c' }),
-    ['<C-f>'] = cmp.mapping(cmp.mapping.scroll_docs(4), { 'i', 'c' }),
-    ['<C-Space>'] = cmp.mapping(cmp.mapping.complete(), { 'i', 'c' }),
-    ['<C-y>'] = cmp.config.disable, -- Specify `cmp.config.disable` if you want to remove the default `<C-y>` mapping.
-    ['<C-e>'] = cmp.mapping({
-      i = cmp.mapping.abort(),
-      c = cmp.mapping.close(),
-    }),
+    ['<C-b>'] = cmp.mapping(cmp.mapping.scroll_docs(-4)),
+    ['<C-f>'] = cmp.mapping(cmp.mapping.scroll_docs(4)),
+    ["<C-p>"] = cmp.mapping.select_prev_item(),
+    ["<C-n>"] = cmp.mapping.select_next_item(),
+    ['<C-Space>'] = cmp.mapping(cmp.mapping.complete()),
+    ['<C-e>'] = cmp.mapping.abort(),
     ['<CR>'] = cmp.mapping.confirm({ select = true }),
     ["<Tab>"] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_next_item()
+      -- You could replace the expand_or_jumpable() calls with expand_or_locally_jumpable() 
+      -- they way you will only jump inside the snippet region
       elseif luasnip.expand_or_jumpable() then
         luasnip.expand_or_jump()
       elseif has_words_before() then
@@ -144,6 +151,32 @@ cmp.setup({
     { name = 'buffer' },
   })
 })
+  -- Set configuration for specific filetype.
+  cmp.setup.filetype('gitcommit', {
+    sources = cmp.config.sources({
+      { name = 'cmp_git' }, -- You can specify the `cmp_git` source if you were installed it.
+    }, {
+      { name = 'buffer' },
+    })
+  })
+
+  -- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
+  cmp.setup.cmdline({ '/', '?' }, {
+    mapping = cmp.mapping.preset.cmdline(),
+    sources = {
+      { name = 'buffer' }
+    }
+  })
+
+  -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
+  cmp.setup.cmdline(':', {
+    mapping = cmp.mapping.preset.cmdline(),
+    sources = cmp.config.sources({
+      { name = 'path' }
+    }, {
+      { name = 'cmdline' }
+    })
+  })
 
 vim.lsp.handlers["textDocument/hover"] =
   vim.lsp.with(
@@ -206,7 +239,7 @@ require("lualine").setup{
       lualine_b = {'branch', 'diff', 'diagnostics', 'filename'},
       lualine_c = {
         {
-          "vim.b.lsp_current_function"
+          navic.get_location, cond = navic.is_available
         }
       }
     }
@@ -222,15 +255,14 @@ require("project_nvim").setup {
   patterns = { ".git", ".p4config", ".p4env", "Makefile", "package.json" }
 }
 
-vim.g.NERDAltDelims_c = 1
-
--- disable netrw at the very start of your init.lua (strongly advised)
-vim.g.loaded_netrw = 1
-vim.g.loaded_netrwPlugin = 1
-
 -- empty setup using defaults
 require("nvim-tree").setup()
 vim.g.tokyonight_colors = { comment = "#8c8c8c", fg="#fafaf4"}
-vim.cmd[[colorscheme tokyonight]]
+-- vim.cmd[[colorscheme tokyonight]]
+vim.cmd[[colorscheme kanagawa]]
 
+require('Comment').setup()
 
+require("symbols-outline").setup()
+
+require("fidget").setup{}

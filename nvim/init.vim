@@ -25,22 +25,27 @@ Plug 'rmagatti/goto-preview'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}  
 " Style & UI
 Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
+Plug 'rebelot/kanagawa.nvim'
 Plug 'folke/lsp-colors.nvim'
 Plug 'kyazdani42/nvim-web-devicons'
 Plug 'nvim-lualine/lualine.nvim'
+Plug 'j-hui/fidget.nvim'
 " Utils
 Plug 'folke/which-key.nvim'
 Plug 'akinsho/bufferline.nvim'
 Plug 'tpope/vim-vinegar'
 Plug 'akinsho/toggleterm.nvim'
 " Dev 
-Plug 'preservim/nerdcommenter'
 Plug 'tpope/vim-fugitive'
 Plug 'lewis6991/gitsigns.nvim'
 Plug 'chrisbra/csv.vim'
 Plug 'ahmedkhalf/project.nvim'
-Plug 'nvim-lua/lsp-status.nvim'
 Plug 'nvim-tree/nvim-tree.lua'
+Plug 'azabiong/vim-highlighter'
+Plug 'numToStr/Comment.nvim'
+Plug 'sindrets/diffview.nvim'
+Plug 'SmiteshP/nvim-navic'
+Plug 'simrat39/symbols-outline.nvim'
 " Misc
 Plug 'antoinemadec/FixCursorHold.nvim'
 call plug#end()
