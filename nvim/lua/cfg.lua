@@ -73,7 +73,7 @@ end
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
 -- Enable some language servers with the additional completion capabilities offered by nvim-cmp
-local servers = { 'clangd', 'rust_analyzer', 'pyright'}
+local servers = { 'clangd', 'pyright'}
 for _, lsp in ipairs(servers) do
   nvim_lsp[lsp].setup {
     -- on_attach = my_custom_on_attach,
@@ -81,6 +81,37 @@ for _, lsp in ipairs(servers) do
     on_attach = on_attach
   }
 end
+
+local rt = require("rust-tools")
+
+rt.setup({
+  server = {
+    on_attach = function(client, bufnr)
+      -- Hover actions
+      vim.keymap.set("n", "<C-space>", rt.hover_actions.hover_actions, { buffer = bufnr })
+      -- Code action groups
+      vim.keymap.set("n", "<Leader>a", rt.code_action_group.code_action_group, { buffer = bufnr })
+      -- Enable other mappings
+      on_attach(client, bufnr)
+
+    end,
+    settings = {
+			["rust-analyzer"] = {
+				checkOnSave = {
+					allFeatures = true,
+					overrideCommand = {
+						"cargo",
+						"clippy",
+						"--workspace",
+						"--message-format=json",
+						"--all-targets",
+						"--all-features",
+					},
+				},
+			},
+		},
+  },
+})
 
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = 'menu,menuone,noselect'
@@ -205,7 +236,7 @@ vim.lsp.handlers["textDocument/publishDiagnostics"] =
       }
   )
 
-local signs = { Error = "", Warning = "", Hint = "", Information = "" }
+local signs = { Error = "", Warn = "", Hint = "", Information = "" }
 for type, icon in pairs(signs) do
   -- LspDiagnosticsSign for nvim 0.5.1
   local hl = "DiagnosticSign" .. type

@@ -21,6 +21,7 @@ Plug 'folke/trouble.nvim'
 Plug 'seblj/nvim-echo-diagnostics'
 Plug 'gfanto/fzf-lsp.nvim'
 Plug 'rmagatti/goto-preview'
+Plug 'simrat39/rust-tools.nvim'
 " Treesitter
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}  
 " Style & UI
