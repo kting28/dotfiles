@@ -31,6 +31,7 @@ Plug 'folke/lsp-colors.nvim'
 Plug 'kyazdani42/nvim-web-devicons'
 Plug 'nvim-lualine/lualine.nvim'
 Plug 'j-hui/fidget.nvim'
+Plug 'goolord/alpha-nvim'
 " Utils
 Plug 'folke/which-key.nvim'
 Plug 'akinsho/bufferline.nvim'

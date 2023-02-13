@@ -296,9 +296,10 @@ vim.g.tokyonight_colors = { comment = "#8c8c8c", fg="#fafaf4"}
 vim.cmd[[colorscheme kanagawa]]
 
 require('Comment').setup()
-require("symbols-outline").setup()
-require("fidget").setup{}
+require('symbols-outline').setup()
+require('fidget').setup{}
 require('glance').setup({
   border = { enable = true }
 })
+require('alpha').setup(require'alpha.themes.startify'.config)
 
