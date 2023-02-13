@@ -13,7 +13,7 @@ require('telescope').load_extension('projects')
 local navic = require("nvim-navic")
 -- nvim-lua/kickstart.nvim
 local nvim_lsp = require('lspconfig')
-
+local lsp_signature = require('lsp_signature')
 local on_attach = function(client, bufnr)
   local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
   local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
@@ -61,6 +61,9 @@ local on_attach = function(client, bufnr)
   end
   if client.server_capabilities.documentSymbolProvider then
     navic.attach(client, bufnr)
+    lsp_signature.on_attach({
+      hint_prefix = " ",
+    }, bufnr)
   end
 end
 
@@ -262,7 +265,9 @@ vim.g.tokyonight_colors = { comment = "#8c8c8c", fg="#fafaf4"}
 vim.cmd[[colorscheme kanagawa]]
 
 require('Comment').setup()
-
 require("symbols-outline").setup()
-
 require("fidget").setup{}
+require('glance').setup({
+  border = { enable = true }
+})
+
