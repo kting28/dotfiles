@@ -50,6 +50,7 @@ Plug 'SmiteshP/nvim-navic'
 Plug 'simrat39/symbols-outline.nvim'
 Plug 'ray-x/lsp_signature.nvim'
 Plug 'dnlhc/glance.nvim'
+Plug 'lukas-reineke/indent-blankline.nvim'
 " Misc
 Plug 'antoinemadec/FixCursorHold.nvim'
 call plug#end()
