@@ -1,3 +1,81 @@
+-----------------------------------
+-- Install plugins with Lazy
+-----------------------------------
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system({
+    "git",
+    "clone",
+    "--filter=blob:none",
+    "https://github.com/folke/lazy.nvim.git",
+    "--branch=stable", -- latest stable release
+    lazypath,
+  })
+end
+
+vim.opt.rtp:prepend(lazypath)
+
+require("lazy").setup({
+  -- fuzzy search and pickers
+  "junegunn/fzf",
+  "junegunn/fzf.vim",
+  "nvim-lua/plenary.nvim",
+  "nvim-telescope/telescope.nvim",
+  { "nvim-telescope/telescope-fzf-native.nvim", build = "make"}, 
+  -- LSP
+  "neovim/nvim-lspconfig",
+  "hrsh7th/cmp-nvim-lsp",
+  "hrsh7th/cmp-buffer",
+  "hrsh7th/cmp-path",
+  "hrsh7th/cmp-cmdline",
+  "hrsh7th/nvim-cmp", 
+  "saadparwaiz1/cmp_luasnip",
+  "L3MON4D3/LuaSnip",
+  "folke/trouble.nvim",
+  "seblj/nvim-echo-diagnostics",
+  "gfanto/fzf-lsp.nvim",
+  "rmagatti/goto-preview",
+  "simrat39/rust-tools.nvim",
+  "nvim-treesitter/nvim-treesitter",
+  -- UI
+  "folke/tokyonight.nvim",
+  "rebelot/kanagawa.nvim",
+  "folke/lsp-colors.nvim",
+  "kyazdani42/nvim-web-devicons",
+  "nvim-lualine/lualine.nvim",
+  "j-hui/fidget.nvim",
+  "goolord/alpha-nvim",
+  "folke/which-key.nvim",
+  "akinsho/bufferline.nvim",
+  -- UI
+  "tpope/vim-vinegar",
+  "akinsho/toggleterm.nvim",
+  "tpope/vim-fugitive",
+  "lewis6991/gitsigns.nvim",
+  -- Dev
+  "chrisbra/csv.vim",
+  "ahmedkhalf/project.nvim",
+  "nvim-tree/nvim-tree.lua",
+  "azabiong/vim-highlighter",
+  "numToStr/Comment.nvim",
+  "sindrets/diffview.nvim",
+  "SmiteshP/nvim-navic",
+  "simrat39/symbols-outline.nvim",
+  "ray-x/lsp_signature.nvim",
+  "dnlhc/glance.nvim",
+  "lukas-reineke/indent-blankline.nvim",
+}, 
+{
+  ui = {
+    border = "single",
+  }
+})
+
+-----------------------------------
+-- General plugin configurations 
+-- with vim commands
+-----------------------------------
+
 -- disable netrw at the very start of your init.lua (strongly advised)
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
@@ -7,11 +85,26 @@ require('telescope').setup {}
 require('telescope').load_extension('fzf')
 require('telescope').load_extension('projects')
 
+vim.cmd[[
+nnoremap <leader>ff <cmd>Telescope find_files<cr>
+nnoremap <leader>fg <cmd>Telescope live_grep<cr>
+nnoremap <leader>fb <cmd>Telescope buffers<cr>
+nnoremap <leader>fh <cmd>Telescope help_tags<cr>
+nnoremap <leader>fr <cmd>Telescope oldfiles<cr>
+nnoremap <leader>fp <cmd>Telescope projects<cr>
+
+augroup FugitiveBehavior
+  autocmd!
+  autocmd User FugitiveStageBlob setlocal readonly nomodifiable noswapfile
+augroup END
+]]
+
+
+-----------------------------------
 -- neovim/nvim-lspconfig
-
-
-local navic = require("nvim-navic")
 -- nvim-lua/kickstart.nvim
+-----------------------------------
+local navic = require("nvim-navic")
 local nvim_lsp = require('lspconfig')
 local lsp_signature = require('lsp_signature')
 local on_attach = function(client, bufnr)
@@ -67,8 +160,10 @@ local on_attach = function(client, bufnr)
   end
 end
 
+-----------------------------------
 -- hrsh7th/nvim-cmp
 -- Add additional capabilities supported by nvim-cmp
+-----------------------------------
 --local capabilities = vim.lsp.protocol.make_client_capabilities()
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
@@ -81,6 +176,10 @@ for _, lsp in ipairs(servers) do
     on_attach = on_attach
   }
 end
+
+-----------------------------------
+-- rust-tools
+-----------------------------------
 
 local rt = require("rust-tools")
 
@@ -113,7 +212,12 @@ rt.setup({
   },
 })
 
--- Set completeopt to have a better completion experience
+-----------------------------------
+-- Configure nvim-cmp for completion
+-- and signature hints
+-----------------------------------
+-- Set completeopt to have a better 
+-- completion experience
 vim.o.completeopt = 'menu,menuone,noselect'
 
 -- luasnip setup
@@ -243,7 +347,9 @@ for type, icon in pairs(signs) do
   vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
 end
 
+-----------------------------------
 -- nvim-teesitter
+-----------------------------------
 require'nvim-treesitter.configs'.setup {
   ensure_installed = "all", -- one of "all", "maintained" (parsers with maintainers), or a list of languages
   sync_install = false, -- install languages synchronously (only applied to `ensure_installed`)
@@ -259,6 +365,21 @@ require'nvim-treesitter.configs'.setup {
   },
 }
 
+-----------------------------------
+-- Color schemes
+-----------------------------------
+vim.g.tokyonight_colors = { comment = "#8c8c8c", fg="#fafaf4"}
+-- vim.cmd[[colorscheme tokyonight]]
+require('kanagawa').setup({
+      commentStyle = { italic = false },
+      keywordStyle = { italic = false },
+})
+vim.cmd[[colorscheme kanagawa]]
+
+
+-----------------------------------
+-- Misc. plugin setup calls
+-----------------------------------
 require("trouble").setup {}
 require("which-key").setup{
   window = {
@@ -267,7 +388,7 @@ require("which-key").setup{
 }
 require("lualine").setup{
     options = { 
-        theme = 'tokyonight'
+        theme = 'kanagawa'
     },
     sections = {
       lualine_b = {'branch', 'diff', 'diagnostics', 'filename'},
@@ -289,12 +410,7 @@ require("project_nvim").setup {
   patterns = { ".git", ".p4config", ".p4env", "Makefile", "package.json" }
 }
 
--- empty setup using defaults
 require("nvim-tree").setup()
-vim.g.tokyonight_colors = { comment = "#8c8c8c", fg="#fafaf4"}
--- vim.cmd[[colorscheme tokyonight]]
-vim.cmd[[colorscheme kanagawa]]
-
 require('Comment').setup()
 require('symbols-outline').setup()
 require('fidget').setup{}
@@ -307,4 +423,3 @@ require("indent_blankline").setup {
     show_current_context = true,
     show_current_context_start = true,
 }
-
