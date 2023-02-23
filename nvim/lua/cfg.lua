@@ -80,6 +80,9 @@ require("lazy").setup({
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 
+-- Update more frequently for CursorHold
+vim.opt.updatetime=300
+
 -- nvim-telescope/telescope-fzf-native.nvim
 require('telescope').setup {}
 require('telescope').load_extension('fzf')
@@ -423,3 +426,9 @@ require("indent_blankline").setup {
     show_current_context = true,
     show_current_context_start = true,
 }
+
+require("echo-diagnostics").setup{
+    show_diagnostic_number = true,
+    show_diagnostic_source = true,
+}
+
