@@ -33,7 +33,6 @@ require("lazy").setup({
   "L3MON4D3/LuaSnip",
   "folke/trouble.nvim",
   "seblj/nvim-echo-diagnostics",
-  "gfanto/fzf-lsp.nvim",
   "rmagatti/goto-preview",
   "simrat39/rust-tools.nvim",
   "nvim-treesitter/nvim-treesitter",
@@ -47,7 +46,6 @@ require("lazy").setup({
   "goolord/alpha-nvim",
   "folke/which-key.nvim",
   "akinsho/bufferline.nvim",
-  -- UI
   "tpope/vim-vinegar",
   "akinsho/toggleterm.nvim",
   "tpope/vim-fugitive",
@@ -88,13 +86,15 @@ require('telescope').setup {}
 require('telescope').load_extension('fzf')
 require('telescope').load_extension('projects')
 
-vim.cmd[[
-nnoremap <leader>ff <cmd>Telescope find_files<cr>
+vim.cmd [[
+nnoremap <leader>fr <cmd>Telescope resume<cr>
+nnoremap <leader>ff <cmd>Telescope find_files theme=dropdown<cr>
 nnoremap <leader>fg <cmd>Telescope live_grep<cr>
 nnoremap <leader>fb <cmd>Telescope buffers<cr>
 nnoremap <leader>fh <cmd>Telescope help_tags<cr>
 nnoremap <leader>fr <cmd>Telescope oldfiles<cr>
 nnoremap <leader>fp <cmd>Telescope projects<cr>
+nnoremap <leader>fw <cmd>Telescope lsp_dynamic_workspace_symbols theme=dropdown<cr>
 
 augroup FugitiveBehavior
   autocmd!
@@ -292,33 +292,6 @@ cmp.setup({
     { name = 'buffer' },
   })
 })
-  -- Set configuration for specific filetype.
-  cmp.setup.filetype('gitcommit', {
-    sources = cmp.config.sources({
-      { name = 'cmp_git' }, -- You can specify the `cmp_git` source if you were installed it.
-    }, {
-      { name = 'buffer' },
-    })
-  })
-
-  -- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
-  cmp.setup.cmdline({ '/', '?' }, {
-    mapping = cmp.mapping.preset.cmdline(),
-    sources = {
-      { name = 'buffer' }
-    }
-  })
-
-  -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
-  cmp.setup.cmdline(':', {
-    mapping = cmp.mapping.preset.cmdline(),
-    sources = cmp.config.sources({
-      { name = 'path' }
-    }, {
-      { name = 'cmdline' }
-    })
-  })
-
 vim.lsp.handlers["textDocument/hover"] =
   vim.lsp.with(
     vim.lsp.handlers.hover,
