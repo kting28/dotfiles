@@ -17,8 +17,8 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
   -- fuzzy search and pickers
-  "junegunn/fzf",
-  "junegunn/fzf.vim",
+  --"junegunn/fzf",
+  --"junegunn/fzf.vim",
   "nvim-lua/plenary.nvim",
   "nvim-telescope/telescope.nvim",
   { "nvim-telescope/telescope-fzf-native.nvim", build = "make"}, 
@@ -85,16 +85,27 @@ vim.opt.updatetime=300
 require('telescope').setup {}
 require('telescope').load_extension('fzf')
 require('telescope').load_extension('projects')
-
+local actions = require("telescope.actions")
+require("telescope").setup{
+  defaults = {
+    mappings = {
+      i = {
+        ["<esc>"] = actions.close
+      },
+    },
+  }
+}
 vim.cmd [[
 nnoremap <leader>fr <cmd>Telescope resume<cr>
+nnoremap <C-P> <cmd>Telescope find_files theme=dropdown<cr>
 nnoremap <leader>ff <cmd>Telescope find_files theme=dropdown<cr>
 nnoremap <leader>fg <cmd>Telescope live_grep<cr>
 nnoremap <leader>fb <cmd>Telescope buffers<cr>
-nnoremap <leader>fh <cmd>Telescope help_tags<cr>
-nnoremap <leader>fr <cmd>Telescope oldfiles<cr>
+"nnoremap <leader>fh <cmd>Telescope help_tags<cr>
+nnoremap <C-H> <cmd>Telescope oldfiles theme=dropdown<cr>
+nnoremap <leader>fh <cmd>Telescope oldfiles theme=dropdown<cr>
 nnoremap <leader>fp <cmd>Telescope projects<cr>
-nnoremap <leader>fw <cmd>Telescope lsp_dynamic_workspace_symbols theme=dropdown<cr>
+nnoremap <leader>fw <cmd>Telescope lsp_dynamic_workspace_symbols theme=ivy<cr>
 
 augroup FugitiveBehavior
   autocmd!
@@ -382,11 +393,18 @@ require('goto-preview').setup {
   default_mappings = true,
 }
 require("project_nvim").setup {
-  manual_mode = true,
+  manual_mode = false,
   patterns = { ".git", ".p4config", ".p4env", "Makefile", "package.json" }
 }
 
-require("nvim-tree").setup()
+require("nvim-tree").setup({
+  sync_root_with_cwd = true,
+  respect_buf_cwd = true,
+  update_focused_file = {
+    enable = true,
+    update_root = true
+  },
+})
 require('Comment').setup()
 require('symbols-outline').setup()
 require('fidget').setup{}
