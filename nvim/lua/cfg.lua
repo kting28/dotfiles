@@ -1,3 +1,6 @@
+require('settings')
+
+vim.api.nvim_set_keymap('', '<leader><cr>', ':noh<cr>', { noremap = true, silent = true } )
 -----------------------------------
 -- Install plugins with Lazy
 -----------------------------------
@@ -21,14 +24,13 @@ require("lazy").setup({
   --"junegunn/fzf.vim",
   "nvim-lua/plenary.nvim",
   "nvim-telescope/telescope.nvim",
-  { "nvim-telescope/telescope-fzf-native.nvim", build = "make"}, 
+  { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
   -- LSP
   "neovim/nvim-lspconfig",
   "hrsh7th/cmp-nvim-lsp",
   "hrsh7th/cmp-buffer",
   "hrsh7th/cmp-path",
-  "hrsh7th/cmp-cmdline",
-  "hrsh7th/nvim-cmp", 
+  "hrsh7th/nvim-cmp",
   "saadparwaiz1/cmp_luasnip",
   "L3MON4D3/LuaSnip",
   "folke/trouble.nvim",
@@ -50,6 +52,7 @@ require("lazy").setup({
   "akinsho/toggleterm.nvim",
   "tpope/vim-fugitive",
   "lewis6991/gitsigns.nvim",
+  "onsails/lspkind.nvim",
   -- Dev
   "chrisbra/csv.vim",
   "ahmedkhalf/project.nvim",
@@ -62,15 +65,15 @@ require("lazy").setup({
   "ray-x/lsp_signature.nvim",
   "dnlhc/glance.nvim",
   "lukas-reineke/indent-blankline.nvim",
-}, 
-{
-  ui = {
-    border = "single",
-  }
-})
+},
+  {
+    ui = {
+      border = "single",
+    }
+  })
 
 -----------------------------------
--- General plugin configurations 
+-- General plugin configurations
 -- with vim commands
 -----------------------------------
 
@@ -79,14 +82,14 @@ vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 
 -- Update more frequently for CursorHold
-vim.opt.updatetime=300
+vim.opt.updatetime = 300
 
 -- nvim-telescope/telescope-fzf-native.nvim
 require('telescope').setup {}
 require('telescope').load_extension('fzf')
 require('telescope').load_extension('projects')
 local actions = require("telescope.actions")
-require("telescope").setup{
+require("telescope").setup {
   defaults = {
     mappings = {
       i = {
@@ -105,12 +108,13 @@ nnoremap <leader>fb <cmd>Telescope buffers<cr>
 nnoremap <C-H> <cmd>Telescope oldfiles theme=dropdown<cr>
 nnoremap <leader>fh <cmd>Telescope oldfiles theme=dropdown<cr>
 nnoremap <leader>fp <cmd>Telescope projects<cr>
-nnoremap <leader>fw <cmd>Telescope lsp_dynamic_workspace_symbols theme=ivy<cr>
 
 augroup FugitiveBehavior
   autocmd!
   autocmd User FugitiveStageBlob setlocal readonly nomodifiable noswapfile
 augroup END
+
+au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 ]]
 
 
@@ -131,7 +135,7 @@ local on_attach = function(client, bufnr)
   buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
   -- Mappings.
   -- from https://github.com/neovim/nvim-lspconfig
-  local opts = { noremap=true, silent=true }
+  local opts = { noremap = true, silent = true }
   buf_set_keymap('n', 'gD', '<Cmd>lua vim.lsp.buf.declaration()<CR>', opts)
   buf_set_keymap('n', 'gd', '<Cmd>lua vim.lsp.buf.definition()<CR>', opts)
   buf_set_keymap('n', 'ga', '<Cmd>lua vim.lsp.buf.code_action()<CR>', opts)
@@ -148,6 +152,8 @@ local on_attach = function(client, bufnr)
   buf_set_keymap('n', '[d', '<cmd>lua vim.diagnostic.goto_prev({float={border="rounded"}})<CR>', opts)
   buf_set_keymap('n', ']d', '<cmd>lua vim.diagnostic.goto_next({float={border="rounded"}})<CR>', opts)
   buf_set_keymap('n', '<space>f', '<cmd>lua vim.lsp.buf.format({async=true})<CR>', opts)
+  buf_set_keymap('n', '<space>fw', '<cmd>Telescope lsp_dynamic_workspace_symbols theme=ivy<cr>', opts)
+  buf_set_keymap('n', '<leader>fr', '<cmd>Telescope lsp_references theme=ivy<cr>', opts)
 
   -- Set some keybinds conditional on server capabilities
   if client.server_capabilities.documentFormattingProvider then
@@ -182,7 +188,7 @@ end
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
 -- Enable some language servers with the additional completion capabilities offered by nvim-cmp
-local servers = { 'clangd', 'pyright'}
+local servers = { 'clangd', 'pyright' }
 for _, lsp in ipairs(servers) do
   nvim_lsp[lsp].setup {
     -- on_attach = my_custom_on_attach,
@@ -209,20 +215,20 @@ rt.setup({
 
     end,
     settings = {
-			["rust-analyzer"] = {
-				checkOnSave = {
-					allFeatures = true,
-					overrideCommand = {
-						"cargo",
-						"clippy",
-						"--workspace",
-						"--message-format=json",
-						"--all-targets",
-						"--all-features",
-					},
-				},
-			},
-		},
+      ["rust-analyzer"] = {
+        checkOnSave = {
+          allFeatures = true,
+          overrideCommand = {
+            "cargo",
+            "clippy",
+            "--workspace",
+            "--message-format=json",
+            "--all-targets",
+            "--all-features",
+          },
+        },
+      },
+    },
   },
 })
 
@@ -230,7 +236,7 @@ rt.setup({
 -- Configure nvim-cmp for completion
 -- and signature hints
 -----------------------------------
--- Set completeopt to have a better 
+-- Set completeopt to have a better
 -- completion experience
 vim.o.completeopt = 'menu,menuone,noselect'
 
@@ -238,8 +244,8 @@ vim.o.completeopt = 'menu,menuone,noselect'
 local luasnip = require 'luasnip'
 
 -- nvim-cmp setup
-local cmp = require'cmp'
-
+local cmp = require 'cmp'
+local lspkind = require('lspkind')
 local has_words_before = function()
   unpack = unpack or table.unpack
   local line, col = unpack(vim.api.nvim_win_get_cursor(0))
@@ -262,7 +268,7 @@ cmp.setup({
     documentation = cmp.config.window.bordered(),
   },
   mapping = {
-    ['<C-b>'] = cmp.mapping(cmp.mapping.scroll_docs(-4)),
+    ['<C-b>'] = cmp.mapping(cmp.mapping.scroll_docs( -4)),
     ['<C-f>'] = cmp.mapping(cmp.mapping.scroll_docs(4)),
     ["<C-p>"] = cmp.mapping.select_prev_item(),
     ["<C-n>"] = cmp.mapping.select_next_item(),
@@ -272,8 +278,8 @@ cmp.setup({
     ["<Tab>"] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_next_item()
-      -- You could replace the expand_or_jumpable() calls with expand_or_locally_jumpable() 
-      -- they way you will only jump inside the snippet region
+        -- You could replace the expand_or_jumpable() calls with expand_or_locally_jumpable()
+        -- they way you will only jump inside the snippet region
       elseif luasnip.expand_or_jumpable() then
         luasnip.expand_or_jump()
       elseif has_words_before() then
@@ -286,8 +292,8 @@ cmp.setup({
     ["<S-Tab>"] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_prev_item()
-      elseif luasnip.jumpable(-1) then
-        luasnip.jump(-1)
+      elseif luasnip.jumpable( -1) then
+        luasnip.jump( -1)
       else
         fallback()
       end
@@ -301,31 +307,44 @@ cmp.setup({
     -- { name = 'snippy' }, -- For snippy users.
   }, {
     { name = 'buffer' },
-  })
+    { name = 'path' },
+  }),
+  formatting = {
+    format = lspkind.cmp_format({
+      mode = "symbol_text",
+      menu = ({
+        buffer = "[Buffer]",
+        nvim_lsp = "[LSP]",
+        luasnip = "[LuaSnip]",
+        nvim_lua = "[Lua]",
+        latex_symbols = "[Latex]",
+      }),
+    }),
+  },
 })
 vim.lsp.handlers["textDocument/hover"] =
-  vim.lsp.with(
-    vim.lsp.handlers.hover,
-    {
-      border = "single"
-    }
-  )
-
-vim.lsp.handlers["textDocument/signatureHelp"] =
-  vim.lsp.with(
-    vim.lsp.handlers.signature_help,
+    vim.lsp.with(
+      vim.lsp.handlers.hover,
       {
         border = "single"
       }
-  )
+    )
+
+vim.lsp.handlers["textDocument/signatureHelp"] =
+    vim.lsp.with(
+      vim.lsp.handlers.signature_help,
+      {
+        border = "single"
+      }
+    )
 
 vim.lsp.handlers["textDocument/publishDiagnostics"] =
-  vim.lsp.with(
-    vim.lsp.diagnostic.on_publish_diagnostics,
+    vim.lsp.with(
+      vim.lsp.diagnostic.on_publish_diagnostics,
       {
         virtual_text = false,
       }
-  )
+    )
 
 local signs = { Error = "", Warn = "", Hint = "", Information = "" }
 for type, icon in pairs(signs) do
@@ -337,13 +356,13 @@ end
 -----------------------------------
 -- nvim-teesitter
 -----------------------------------
-require'nvim-treesitter.configs'.setup {
+require 'nvim-treesitter.configs'.setup {
   ensure_installed = "all", -- one of "all", "maintained" (parsers with maintainers), or a list of languages
   sync_install = false, -- install languages synchronously (only applied to `ensure_installed`)
   ignore_install = { "javascript" }, -- List of parsers to ignore installing
   highlight = {
-    enable = true,              -- false will disable the whole extension
-    disable = { "javascript"},  -- list of language that will be disabled
+    enable = true, -- false will disable the whole extension
+    disable = { "javascript" }, -- list of language that will be disabled
     -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
     -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
     -- Using this option may slow down your editor, and you may see some duplicate highlights.
@@ -355,40 +374,40 @@ require'nvim-treesitter.configs'.setup {
 -----------------------------------
 -- Color schemes
 -----------------------------------
-vim.g.tokyonight_colors = { comment = "#8c8c8c", fg="#fafaf4"}
+vim.g.tokyonight_colors = { comment = "#8c8c8c", fg = "#fafaf4" }
 -- vim.cmd[[colorscheme tokyonight]]
 require('kanagawa').setup({
-      commentStyle = { italic = false },
-      keywordStyle = { italic = false },
+  commentStyle = { italic = false },
+  keywordStyle = { italic = false },
 })
-vim.cmd[[colorscheme kanagawa]]
+vim.cmd [[colorscheme kanagawa]]
 
 
 -----------------------------------
 -- Misc. plugin setup calls
 -----------------------------------
 require("trouble").setup {}
-require("which-key").setup{
+require("which-key").setup {
   window = {
     border = "single", -- none, single, double, shadow
   }
 }
-require("lualine").setup{
-    options = { 
-        theme = 'kanagawa'
-    },
-    sections = {
-      lualine_b = {'branch', 'diff', 'diagnostics', 'filename'},
-      lualine_c = {
-        {
-          navic.get_location, cond = navic.is_available
-        }
+require("lualine").setup {
+  options = {
+    theme = 'kanagawa'
+  },
+  sections = {
+    lualine_b = { 'branch', 'diff', 'diagnostics', 'filename' },
+    lualine_c = {
+      {
+        navic.get_location, cond = navic.is_available
       }
     }
+  }
 }
-require("toggleterm").setup{}
-require("bufferline").setup{}
-require("gitsigns").setup{}
+require("toggleterm").setup {}
+require("bufferline").setup {}
+require("gitsigns").setup {}
 require('goto-preview').setup {
   default_mappings = true,
 }
@@ -405,22 +424,38 @@ require("nvim-tree").setup({
     update_root = true
   },
 })
+
+local function open_nvim_tree(data)
+  -- buffer is a directory
+  local directory = vim.fn.isdirectory(data.file) == 1
+  if not directory then
+    return
+  end
+  -- change to the directory
+  vim.cmd.cd(data.file)
+  -- open the tree
+  require("nvim-tree.api").tree.open()
+end
+
+
+vim.api.nvim_create_autocmd({ "VimEnter" }, { callback = open_nvim_tree })
+
 require('Comment').setup()
 require('symbols-outline').setup()
-require('fidget').setup{}
+require('fidget').setup {}
 require('glance').setup({
   border = { enable = true }
 })
-require('alpha').setup(require'alpha.themes.startify'.config)
+require('alpha').setup(require 'alpha.themes.startify'.config)
 require("indent_blankline").setup {
-    -- for example, context is off by default, use this to turn it on
-    enabled = false,
-    show_current_context = true,
-    show_current_context_start = true,
+  -- for example, context is off by default, use this to turn it on
+  enabled = false,
+  show_current_context = true,
+  show_current_context_start = true,
 }
 
-require("echo-diagnostics").setup{
-    show_diagnostic_number = true,
-    show_diagnostic_source = true,
+require("echo-diagnostics").setup {
+  show_diagnostic_number = true,
+  show_diagnostic_source = true,
 }
 
