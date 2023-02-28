@@ -48,7 +48,6 @@ require("lazy").setup({
   "goolord/alpha-nvim",
   "folke/which-key.nvim",
   "akinsho/bufferline.nvim",
-  "tpope/vim-vinegar",
   "akinsho/toggleterm.nvim",
   "tpope/vim-fugitive",
   "lewis6991/gitsigns.nvim",
@@ -386,7 +385,9 @@ vim.cmd [[colorscheme kanagawa]]
 -----------------------------------
 -- Misc. plugin setup calls
 -----------------------------------
-require("trouble").setup {}
+require("trouble").setup {
+  mode = "document_diagnostics"
+}
 require("which-key").setup {
   window = {
     border = "single", -- none, single, double, shadow
@@ -459,3 +460,4 @@ require("echo-diagnostics").setup {
   show_diagnostic_source = true,
 }
 
+require'terminals'
