@@ -376,6 +376,7 @@ require 'nvim-treesitter.configs'.setup {
 vim.g.tokyonight_colors = { comment = "#8c8c8c", fg = "#fafaf4" }
 -- vim.cmd[[colorscheme tokyonight]]
 require('kanagawa').setup({
+  undercurl = true,
   commentStyle = { italic = false },
   keywordStyle = { italic = false },
 })
