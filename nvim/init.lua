@@ -1,6 +1,6 @@
 require('settings')
 
-vim.api.nvim_set_keymap('', '<leader><cr>', ':noh<cr>', { noremap = true, silent = true } )
+vim.api.nvim_set_keymap('', '<leader><cr>', ':noh<cr>', { noremap = true, silent = true })
 -----------------------------------
 -- Install plugins with Lazy
 -----------------------------------
@@ -52,6 +52,9 @@ require("lazy").setup({
   "tpope/vim-fugitive",
   "lewis6991/gitsigns.nvim",
   "onsails/lspkind.nvim",
+  'stevearc/dressing.nvim',
+  'nvim-telescope/telescope-ui-select.nvim',
+  'nvim-telescope/telescope-dap.nvim',
   -- Dev
   "chrisbra/csv.vim",
   "ahmedkhalf/project.nvim",
@@ -64,6 +67,9 @@ require("lazy").setup({
   "ray-x/lsp_signature.nvim",
   "dnlhc/glance.nvim",
   "lukas-reineke/indent-blankline.nvim",
+  "mfussenegger/nvim-dap",
+  'rcarriga/nvim-dap-ui',
+  'theHamsta/nvim-dap-virtual-text'
 },
   {
     ui = {
@@ -84,28 +90,36 @@ vim.g.loaded_netrwPlugin = 1
 vim.opt.updatetime = 300
 
 -- nvim-telescope/telescope-fzf-native.nvim
-require('telescope').setup {}
-require('telescope').load_extension('fzf')
-require('telescope').load_extension('projects')
 local actions = require("telescope.actions")
-require("telescope").setup {
+telescope = require('telescope')
+telescope.setup {
   defaults = {
     mappings = {
       i = {
         ["<esc>"] = actions.close
       },
     },
+  },
+  extensions = {
+    ["ui-select"] = {
+      require("telescope.themes").get_cursor {
+      }
+    }
   }
 }
+telescope.load_extension('fzf')
+telescope.load_extension('projects')
+telescope.load_extension("ui-select")
+telescope.load_extension('dap')
 vim.cmd [[
 nnoremap <leader>fr <cmd>Telescope resume<cr>
-nnoremap <C-P> <cmd>Telescope find_files theme=dropdown<cr>
-nnoremap <leader>ff <cmd>Telescope find_files theme=dropdown<cr>
-nnoremap <leader>fg <cmd>Telescope live_grep<cr>
-nnoremap <leader>fb <cmd>Telescope buffers<cr>
+nnoremap <C-P> <cmd>Telescope find_files<cr>
+nnoremap <leader>ff <cmd>Telescope find_files<cr>
+nnoremap <leader>fg <cmd>Telescope live_grep theme=ivy<cr>
+nnoremap <leader>fb <cmd>Telescope buffers theme=ivy<cr>
 "nnoremap <leader>fh <cmd>Telescope help_tags<cr>
-nnoremap <C-H> <cmd>Telescope oldfiles theme=dropdown<cr>
-nnoremap <leader>fh <cmd>Telescope oldfiles theme=dropdown<cr>
+nnoremap <C-H> <cmd>Telescope oldfiles<cr>
+nnoremap <leader>fh <cmd>Telescope oldfiles<cr>
 nnoremap <leader>fp <cmd>Telescope projects<cr>
 
 augroup FugitiveBehavior
@@ -197,18 +211,49 @@ for _, lsp in ipairs(servers) do
 end
 
 -----------------------------------
+-- nvim-dap-ui
+-----------------------------------
+vim.fn.sign_define('DapBreakpoint', {text='', texthl='DiagnosticError', linehl='', numhl=''})
+vim.fn.sign_define('DapBreakpointCondition', {text='', texthl='DiagnosticWarn', linehl='', numhl=''})
+vim.fn.sign_define('DapLogPoint', {text='', texthl='', linehl='DiagnosticInfo', numhl=''})
+vim.fn.sign_define('DapBreakpointRejected', {text='', texthl='DiagnosticHint', linehl='', numhl=''})
+
+require("dapui").setup()
+local dap, dapui = require("dap"), require("dapui")
+dap.listeners.after.event_initialized["dapui_config"] = function()
+  dapui.open()
+  require 'dap_cfg'
+end
+dap.listeners.before.event_terminated["dapui_config"] = function()
+  dapui.close()
+end
+dap.listeners.before.event_exited["dapui_config"] = function()
+  dapui.close()
+end
+require("nvim-dap-virtual-text").setup({
+  virt_text_win_col = 120, highlight_changed_variables = true
+}
+
+)
+-----------------------------------
 -- rust-tools
 -----------------------------------
-
 local rt = require("rust-tools")
 
 rt.setup({
+  tools = {
+    inlay_hints = {
+      auto =true,
+      highlight = "LineNr",
+    },
+  },
   server = {
+    standalone = true,
     on_attach = function(client, bufnr)
       -- Hover actions
       vim.keymap.set("n", "<C-space>", rt.hover_actions.hover_actions, { buffer = bufnr })
       -- Code action groups
-      vim.keymap.set("n", "<Leader>a", rt.code_action_group.code_action_group, { buffer = bufnr })
+      -- vim.keymap.set("n", "<Leader>a", rt.code_action_group.code_action_group, { buffer = bufnr })
       -- Enable other mappings
       on_attach(client, bufnr)
 
@@ -229,6 +274,12 @@ rt.setup({
       },
     },
   },
+   dap = {
+      adapter = require('rust-tools.dap').get_codelldb_adapter(
+        "/home/kting/.vscode-server/extensions/vadimcn.vscode-lldb-1.9.0/adapter/codelldb",
+        "/home/kting/.vscode-server/extensions/vadimcn.vscode-lldb-1.9.0/lldb/lib/liblldb.so"
+      )
+    },
 })
 
 -----------------------------------
@@ -399,7 +450,15 @@ require("lualine").setup {
     theme = 'kanagawa'
   },
   sections = {
-    lualine_b = { 'branch', 'diff', 'diagnostics', 'filename' },
+    lualine_b = { 'branch', 'diff', 'diagnostics', 
+      {'filename' ,
+        path = 1,
+        symbols = {
+          modified = '',      -- Text to show when the file is modified.
+          readonly = '',
+        }
+      }
+    },
     lualine_c = {
       {
         navic.get_location, cond = navic.is_available
@@ -461,4 +520,4 @@ require("echo-diagnostics").setup {
   show_diagnostic_source = true,
 }
 
-require'terminals'
+require 'terminals'
