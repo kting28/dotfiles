@@ -128,6 +128,8 @@ augroup FugitiveBehavior
 augroup END
 
 au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+
+au TextYankPost * silent! lua vim.highlight.on_yank{higroup="Search"}
 ]]
 
 
