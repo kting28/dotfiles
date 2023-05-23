@@ -32,7 +32,7 @@ require("lazy").setup({
   "hrsh7th/cmp-path",
   "hrsh7th/nvim-cmp",
   "saadparwaiz1/cmp_luasnip",
-  "L3MON4D3/LuaSnip",
+  {"L3MON4D3/LuaSnip", dependencies = { "rafamadriz/friendly-snippets"} },
   "folke/trouble.nvim",
   "seblj/nvim-echo-diagnostics",
   "rmagatti/goto-preview",
@@ -55,10 +55,14 @@ require("lazy").setup({
   'stevearc/dressing.nvim',
   'nvim-telescope/telescope-ui-select.nvim',
   'nvim-telescope/telescope-dap.nvim',
+  "AckslD/nvim-neoclip.lua",
+  "utilyre/barbecue.nvim",
   -- Dev
   "chrisbra/csv.vim",
   "ahmedkhalf/project.nvim",
+  "rafamadriz/friendly-snippets",
   "nvim-tree/nvim-tree.lua",
+  "MunifTanjim/nui.nvim",
   "azabiong/vim-highlighter",
   "numToStr/Comment.nvim",
   "sindrets/diffview.nvim",
@@ -69,7 +73,12 @@ require("lazy").setup({
   "lukas-reineke/indent-blankline.nvim",
   "mfussenegger/nvim-dap",
   'rcarriga/nvim-dap-ui',
-  'theHamsta/nvim-dap-virtual-text'
+  'theHamsta/nvim-dap-virtual-text',
+  'folke/neodev.nvim',
+  {
+    "williamboman/mason.nvim",
+    build = ":MasonUpdate" -- :MasonUpdate updates registry contents
+  }
 },
   {
     ui = {
@@ -99,6 +108,7 @@ telescope.setup {
         ["<esc>"] = actions.close
       },
     },
+    winblend = 20
   },
   extensions = {
     ["ui-select"] = {
@@ -111,6 +121,8 @@ telescope.load_extension('fzf')
 telescope.load_extension('projects')
 telescope.load_extension("ui-select")
 telescope.load_extension('dap')
+telescope.load_extension('neoclip')
+
 vim.cmd [[
 nnoremap <leader>fr <cmd>Telescope resume<cr>
 nnoremap <C-P> <cmd>Telescope find_files<cr>
@@ -122,6 +134,9 @@ nnoremap <C-H> <cmd>Telescope oldfiles<cr>
 nnoremap <leader>fh <cmd>Telescope oldfiles<cr>
 nnoremap <leader>fp <cmd>Telescope projects<cr>
 
+vnoremap <LeftRelease> "*ygv
+vnoremap <2-LeftRelease> "*ygv
+
 augroup FugitiveBehavior
   autocmd!
   autocmd User FugitiveStageBlob setlocal readonly nomodifiable noswapfile
@@ -130,6 +145,26 @@ augroup END
 au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 
 au TextYankPost * silent! lua vim.highlight.on_yank{higroup="Search"}
+
+"Handle WSL copy and paste as recommended by the official QA
+let uname = substitute(system('uname'),'\n','','')
+if uname == 'Linux'
+    if system('$PATH')=~ '/mnt/c/WINDOWS'
+      let g:clipboard = {
+        \   'name': 'WslClipboard',
+        \   'copy': {
+        \      '+': 'clip.exe',
+        \      '*': 'clip.exe',
+        \    },
+        \   'paste': {
+        \      '+': 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
+        \      '*': 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
+        \   },
+        \   'cache_enabled': 0,
+        \ }
+    endif
+endif
+
 ]]
 
 
@@ -137,6 +172,7 @@ au TextYankPost * silent! lua vim.highlight.on_yank{higroup="Search"}
 -- neovim/nvim-lspconfig
 -- nvim-lua/kickstart.nvim
 -----------------------------------
+require("neodev").setup({})
 local navic = require("nvim-navic")
 local nvim_lsp = require('lspconfig')
 local lsp_signature = require('lsp_signature')
@@ -212,6 +248,27 @@ for _, lsp in ipairs(servers) do
   }
 end
 
+nvim_lsp['pyright'].setup {
+  capabilities = capabilities,
+  on_attach = on_attach,
+  settings = {
+    python = {
+      analysis = {
+        typeCheckingMode = "off"
+      }
+    }
+  }
+}
+
+nvim_lsp.lua_ls.setup({
+  settings = {
+    Lua = {
+      completion = {
+        callSnippet = "Replace"
+      }
+    }
+  }
+})
 -----------------------------------
 -- nvim-dap-ui
 -----------------------------------
@@ -294,7 +351,7 @@ vim.o.completeopt = 'menu,menuone,noselect'
 
 -- luasnip setup
 local luasnip = require 'luasnip'
-
+require("luasnip.loaders.from_vscode").lazy_load()
 -- nvim-cmp setup
 local cmp = require 'cmp'
 local lspkind = require('lspkind')
@@ -316,8 +373,8 @@ cmp.setup({
     end,
   },
   window = {
-    completion = cmp.config.window.bordered(),
-    documentation = cmp.config.window.bordered(),
+    completion = { border = "rounded" },
+    documentation = { border = "rounded" }
   },
   mapping = {
     ['<C-b>'] = cmp.mapping(cmp.mapping.scroll_docs( -4)),
@@ -426,10 +483,20 @@ require 'nvim-treesitter.configs'.setup {
 -----------------------------------
 -- Color schemes
 -----------------------------------
+vim.o.pumblend = 30
 vim.g.tokyonight_colors = { comment = "#8c8c8c", fg = "#fafaf4" }
 -- vim.cmd[[colorscheme tokyonight]]
 require('kanagawa').setup({
   undercurl = true,
+  overrides = function(colors)
+    local theme = colors.theme
+    return {
+        Pmenu = { blend = vim.o.pumblend },
+        TelescopePromptNormal = { bg = theme.ui.bg_p1, blend = vim.o.pumblend },
+        TelescopeResultsNormal = { fg = theme.ui.fg_dim, bg = theme.ui.pmenu.bg, blend = vim.o.pumblend },
+        TelescopePreviewNormal = { bg = theme.ui.bg_dim, blend = vim.o.pumblend },
+    }
+  end,
   commentStyle = { italic = false },
   keywordStyle = { italic = false },
 })
@@ -463,7 +530,7 @@ require("lualine").setup {
     },
     lualine_c = {
       {
-        navic.get_location, cond = navic.is_available
+        "navic", color_correction = nil, navic_opts = nil
       }
     }
   }
@@ -475,7 +542,7 @@ require('goto-preview').setup {
   default_mappings = true,
 }
 require("project_nvim").setup {
-  manual_mode = false,
+  manual_mode = true,
   patterns = { ".git", ".p4config", ".p4env", "Makefile", "package.json" }
 }
 
@@ -502,10 +569,13 @@ end
 
 
 vim.api.nvim_create_autocmd({ "VimEnter" }, { callback = open_nvim_tree })
-
+require("barbecue").setup()
 require('Comment').setup()
 require('symbols-outline').setup()
-require('fidget').setup {}
+require('fidget').setup({
+  text = { spinner = "dots_snake" },
+})
+require('neoclip').setup()
 require('glance').setup({
   border = { enable = true }
 })
@@ -521,5 +591,5 @@ require("echo-diagnostics").setup {
   show_diagnostic_number = true,
   show_diagnostic_source = true,
 }
-
+require("mason").setup()
 require 'terminals'
