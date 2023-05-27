@@ -61,7 +61,7 @@ require("lazy").setup({
   "chrisbra/csv.vim",
   "ahmedkhalf/project.nvim",
   "rafamadriz/friendly-snippets",
-  "nvim-tree/nvim-tree.lua",
+  "nvim-neo-tree/neo-tree.nvim",
   "MunifTanjim/nui.nvim",
   "azabiong/vim-highlighter",
   "numToStr/Comment.nvim",
@@ -75,6 +75,7 @@ require("lazy").setup({
   'rcarriga/nvim-dap-ui',
   'theHamsta/nvim-dap-virtual-text',
   'folke/neodev.nvim',
+  "MunifTanjim/nui.nvim",
   {
     "williamboman/mason.nvim",
     build = ":MasonUpdate" -- :MasonUpdate updates registry contents
@@ -512,6 +513,7 @@ require("trouble").setup {
 require("which-key").setup {
   window = {
     border = "single", -- none, single, double, shadow
+    winblend = 20
   }
 }
 require("lualine").setup {
@@ -546,29 +548,6 @@ require("project_nvim").setup {
   patterns = { ".git", ".p4config", ".p4env", "Makefile", "package.json" }
 }
 
-require("nvim-tree").setup({
-  sync_root_with_cwd = true,
-  respect_buf_cwd = true,
-  update_focused_file = {
-    enable = true,
-    update_root = true
-  },
-})
-
-local function open_nvim_tree(data)
-  -- buffer is a directory
-  local directory = vim.fn.isdirectory(data.file) == 1
-  if not directory then
-    return
-  end
-  -- change to the directory
-  vim.cmd.cd(data.file)
-  -- open the tree
-  require("nvim-tree.api").tree.open()
-end
-
-
-vim.api.nvim_create_autocmd({ "VimEnter" }, { callback = open_nvim_tree })
 require("barbecue").setup()
 require('Comment').setup()
 require('symbols-outline').setup()
@@ -593,3 +572,4 @@ require("echo-diagnostics").setup {
 }
 require("mason").setup()
 require 'terminals'
+require 'neo-tree-cfg'
